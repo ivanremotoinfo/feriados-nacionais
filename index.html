@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feriados Nacionais | SuporteADV</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d0d0d; color: #e0e0e0; padding: 24px 16px; }
+  .container { max-width: 780px; margin: 0 auto; }
+
+  .header { text-align: center; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid #222; }
+  h1 { font-size: 1.5rem; color: #008080; margin-bottom: 6px; }
+  .subtitle { font-size: 0.88rem; color: #888; line-height: 1.5; }
+  .brand { font-size: 0.78rem; margin-top: 8px; color: #555; }
+  .brand span.s { color: #8B00FF; font-weight: 700; }
+  .brand span.a { color: #008080; font-weight: 700; }
+
+  /* Controles */
+  .controles { background: #111; border-radius: 10px; border: 1px solid #222; border-left: 3px solid #8B00FF; padding: 16px 20px; margin-bottom: 14px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .ctrl-esq { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .ano-nav { display: flex; align-items: center; gap: 10px; }
+  .ano-nav button { background: #1a1a1a; border: 1.5px solid #333; color: #888; width: 32px; height: 32px; border-radius: 6px; font-size: 1rem; cursor: pointer; transition: all 0.15s; }
+  .ano-nav button:hover { border-color: #008080; color: #008080; }
+  .ano-nav .ano-txt { font-size: 1.3rem; font-weight: 700; color: #008080; font-family: 'Courier New', monospace; min-width: 60px; text-align: center; }
+  .filtro-tipo { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ft-btn { padding: 5px 12px; border-radius: 20px; border: 1.5px solid #333; font-size: 0.72rem; font-weight: 700; cursor: pointer; color: #666; background: #1a1a1a; transition: all 0.15s; }
+  .ft-btn:hover { border-color: #555; }
+  .ft-btn.ativo { color: #fff; }
+  .ft-btn.nac.ativo { background: #008080; border-color: #008080; }
+  .ft-btn.rel.ativo { background: #8B00FF; border-color: #8B00FF; }
+  .ft-btn.fac.ativo { background: #555; border-color: #555; }
+
+  /* Próximo feriado */
+  .proximo-box { background: #0a1a0a; border: 1px solid #1a4a1a; border-radius: 10px; padding: 16px 20px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .pb-info label { display: block; font-size: 0.68rem; color: #555; text-transform: uppercase; margin-bottom: 4px; }
+  .pb-nome { font-size: 1rem; font-weight: 700; color: #00ff00; }
+  .pb-data { font-size: 0.82rem; color: #555; margin-top: 2px; }
+  .pb-dias { text-align: center; }
+  .pb-dias .pd-num { font-size: 2rem; font-weight: 700; color: #00ff00; font-family: 'Courier New', monospace; }
+  .pb-dias .pd-txt { font-size: 0.72rem; color: #555; }
+
+  /* Cards por mês */
+  .meses-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+  @media (max-width: 600px) { .meses-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 380px) { .meses-grid { grid-template-columns: 1fr; } }
+
+  .mes-card { background: #111; border-radius: 8px; border: 1px solid #1a1a1a; overflow: hidden; }
+  .mc-header { padding: 8px 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; }
+  .mc-header.tem { background: #0a1a0a; color: #008080; }
+  .mc-header.sem { background: #1a1a1a; color: #333; }
+  .mc-items { padding: 6px 0; }
+  .mc-item { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-bottom: 1px solid #1a1a1a; }
+  .mc-item:last-child { border-bottom: none; }
+  .mc-item.passado { opacity: 0.4; }
+  .mc-item.hoje { background: #0a1a2a; }
+  .mc-item.proximo { background: #0a1a0a; }
+  .mi-dia { width: 28px; text-align: center; font-size: 0.82rem; font-weight: 700; font-family: 'Courier New', monospace; color: #008080; flex-shrink: 0; }
+  .mi-dia.passado { color: #444; }
+  .mi-dia.proximo { color: #00ff00; }
+  .mi-info { flex: 1; min-width: 0; }
+  .mi-nome { font-size: 0.82rem; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mc-item.passado .mi-nome { color: #444; }
+  .mi-semana { font-size: 0.68rem; color: #444; }
+  .mi-tag { font-size: 0.6rem; font-weight: 700; padding: 1px 6px; border-radius: 8px; flex-shrink: 0; }
+  .mi-tag.nac { background: #1a3a1a; color: #008080; }
+  .mi-tag.rel { background: #1a1a3a; color: #8B00FF; }
+  .mi-tag.fac { background: #2a2a2a; color: #555; }
+  .mc-vazio { padding: 10px 12px; font-size: 0.75rem; color: #333; }
+
+  /* Lista completa */
+  .lista-wrap { margin-top: 14px; overflow-x: auto; }
+  .lista-wrap summary { cursor: pointer; color: #555; font-size: 0.78rem; margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 480px; }
+  th { text-align: left; color: #555; padding: 7px 10px; border-bottom: 1px solid #222; font-size: 0.72rem; text-transform: uppercase; }
+  td { color: #999; padding: 7px 10px; border-bottom: 1px solid #1a1a1a; }
+  tr:hover td { background: #151515; }
+  tr.passado-row td { opacity: 0.4; }
+  tr.proximo-row td { background: #0a1a0a; }
+  tr.proximo-row td:first-child { color: #00ff00; font-weight: 700; }
+  td.dia-semana-fim { color: #ff6666; }
+
+  .aviso { font-size: 0.72rem; color: #444; margin-top: 14px; line-height: 1.5; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Feriados Nacionais</h1>
+    <p class="subtitle">Calendário completo de feriados nacionais, pontos facultativos e datas comemorativas. Útil para cálculo de prazos processuais.</p>
+    <p class="brand"><span class="s">suporte</span><span class="a">ADV</span>.br — Ferramentas para Advogados</p>
+  </div>
+
+  <!-- Controles -->
+  <div class="controles">
+    <div class="ctrl-esq">
+      <div class="ano-nav">
+        <button onclick="setAno(anoAtual-1)">‹</button>
+        <div class="ano-txt" id="ano-txt">2025</div>
+        <button onclick="setAno(anoAtual+1)">›</button>
+      </div>
+      <div class="filtro-tipo">
+        <div class="ft-btn nac ativo" onclick="toggleFiltro('nac',this)">Nacional</div>
+        <div class="ft-btn rel ativo" onclick="toggleFiltro('rel',this)">Religioso</div>
+        <div class="ft-btn fac ativo" onclick="toggleFiltro('fac',this)">Facultativo</div>
+      </div>
+    </div>
+    <div style="font-size:0.78rem;color:#555" id="resumo-ano">—</div>
+  </div>
+
+  <!-- Próximo feriado -->
+  <div class="proximo-box" id="proximo-box"></div>
+
+  <!-- Grid de meses -->
+  <div class="meses-grid" id="meses-grid"></div>
+
+  <!-- Lista completa -->
+  <details class="lista-wrap">
+    <summary>Ver lista completa do ano</summary>
+    <table>
+      <thead><tr><th>Data</th><th>Dia da semana</th><th>Feriado</th><th>Tipo</th><th>Base legal</th></tr></thead>
+      <tbody id="lista-tbody"></tbody>
+    </table>
+  </details>
+
+  <p class="aviso">⚠️ Este calendário lista feriados nacionais (Lei 9.093/95 e legislação específica). Feriados estaduais e municipais variam por localidade. Para cálculo de prazos processuais, verifique também o calendário do tribunal competente (TJ, TRF, TST etc.).</p>
+
+</div>
+
+<script>
+let anoAtual = new Date().getFullYear();
+let filtrosAtivos = { nac: true, rel: true, fac: true };
+
+const diasSemana = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+const mesesNomes = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function getFeriados(ano) {
+  // Cálculo da Páscoa (algoritmo de Meeus/Jones/Butcher)
+  const a = ano % 19, b = Math.floor(ano/100), c = ano % 100;
+  const d = Math.floor(b/4), e = b % 4, f = Math.floor((b+8)/25);
+  const g = Math.floor((b-f+1)/3), h = (19*a+b-d-g+15) % 30;
+  const i = Math.floor(c/4), k = c % 4;
+  const l = (32+2*e+2*i-h-k) % 7;
+  const m = Math.floor((a+11*h+22*l)/451);
+  const mesPascoa = Math.floor((h+l-7*m+114)/31);
+  const diaPascoa = ((h+l-7*m+114) % 31) + 1;
+  const pascoa = new Date(ano, mesPascoa-1, diaPascoa);
+
+  const addDias = (d, n) => { const r = new Date(d); r.setDate(r.getDate()+n); return r; };
+  const fmt = d => `${ano}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+  return [
+    { data: `${ano}-01-01`, nome: 'Confraternização Universal', tipo: 'nac', base: 'Lei 9.093/95' },
+    { data: fmt(addDias(pascoa, -48)), nome: 'Carnaval (2ª feira)', tipo: 'fac', base: 'Ponto facultativo' },
+    { data: fmt(addDias(pascoa, -47)), nome: 'Carnaval (3ª feira)', tipo: 'fac', base: 'Ponto facultativo' },
+    { data: fmt(addDias(pascoa, -46)), nome: 'Quarta-feira de Cinzas (meio dia)', tipo: 'fac', base: 'Ponto facultativo' },
+    { data: fmt(addDias(pascoa, -2)), nome: 'Sexta-feira Santa (Paixão de Cristo)', tipo: 'rel', base: 'Lei 9.093/95' },
+    { data: fmt(pascoa), nome: 'Páscoa', tipo: 'rel', base: 'Calculada' },
+    { data: `${ano}-04-21`, nome: 'Tiradentes', tipo: 'nac', base: 'Lei 9.093/95' },
+    { data: `${ano}-05-01`, nome: 'Dia do Trabalho', tipo: 'nac', base: 'Lei 9.093/95' },
+    { data: fmt(addDias(pascoa, 60)), nome: 'Corpus Christi', tipo: 'rel', base: 'Ponto facultativo federal' },
+    { data: `${ano}-09-07`, nome: 'Independência do Brasil', tipo: 'nac', base: 'Lei 9.093/95' },
+    { data: `${ano}-10-12`, nome: 'Nossa Senhora Aparecida', tipo: 'rel', base: 'Lei 9.093/95' },
+    { data: `${ano}-11-02`, nome: 'Finados', tipo: 'rel', base: 'Lei 9.093/95' },
+    { data: `${ano}-11-15`, nome: 'Proclamação da República', tipo: 'nac', base: 'Lei 9.093/95' },
+    { data: `${ano}-11-20`, nome: 'Dia da Consciência Negra', tipo: 'nac', base: 'Lei 14.759/23' },
+    { data: `${ano}-12-24`, nome: 'Véspera de Natal (meio dia)', tipo: 'fac', base: 'Ponto facultativo' },
+    { data: `${ano}-12-25`, nome: 'Natal', tipo: 'rel', base: 'Lei 9.093/95' },
+    { data: `${ano}-12-31`, nome: 'Véspera de Ano Novo (meio dia)', tipo: 'fac', base: 'Ponto facultativo' },
+  ].sort((a,b) => a.data.localeCompare(b.data));
+}
+
+function toggleFiltro(tipo, el) {
+  filtrosAtivos[tipo] = !filtrosAtivos[tipo];
+  el.classList.toggle('ativo', filtrosAtivos[tipo]);
+  render();
+}
+
+function setAno(ano) {
+  anoAtual = ano;
+  document.getElementById('ano-txt').textContent = ano;
+  render();
+}
+
+function fmtDataBR(dataStr) {
+  const [y,m,d] = dataStr.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function getDiaSemana(dataStr) {
+  const [y,m,d] = dataStr.split('-').map(Number);
+  return diasSemana[new Date(y,m-1,d).getDay()];
+}
+
+function render() {
+  const hoje = new Date();
+  hoje.setHours(0,0,0,0);
+  const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-${String(hoje.getDate()).padStart(2,'0')}`;
+
+  const feriados = getFeriados(anoAtual).filter(f => filtrosAtivos[f.tipo]);
+  const nomes = { nac:'Nacional', rel:'Religioso', fac:'Facultativo' };
+
+  // Resumo
+  const nac = feriados.filter(f=>f.tipo==='nac').length;
+  const rel = feriados.filter(f=>f.tipo==='rel').length;
+  const fac = feriados.filter(f=>f.tipo==='fac').length;
+  document.getElementById('resumo-ano').textContent = `${feriados.length} datas — ${nac} nacionais · ${rel} religiosos · ${fac} facultativos`;
+
+  // Próximo feriado
+  const proximos = feriados.filter(f => f.data >= hojeStr);
+  const pbBox = document.getElementById('proximo-box');
+  if (proximos.length > 0 && anoAtual === hoje.getFullYear()) {
+    const prox = proximos[0];
+    const [y,m,d] = prox.data.split('-').map(Number);
+    const dataFer = new Date(y,m-1,d);
+    const diasFalt = Math.ceil((dataFer - hoje) / 86400000);
+    pbBox.innerHTML = `
+      <div class="pb-info">
+        <label>Próximo feriado</label>
+        <div class="pb-nome">${prox.nome}</div>
+        <div class="pb-data">${fmtDataBR(prox.data)} — ${getDiaSemana(prox.data)}</div>
+      </div>
+      <div class="pb-dias">
+        <div class="pd-num">${diasFalt === 0 ? 'Hoje!' : diasFalt}</div>
+        <div class="pd-txt">${diasFalt === 0 ? '' : 'dias'}</div>
+      </div>`;
+    pbBox.style.display = '';
+  } else {
+    pbBox.style.display = 'none';
+  }
+
+  // Grid de meses
+  const grid = document.getElementById('meses-grid');
+  grid.innerHTML = '';
+  for (let mes = 0; mes < 12; mes++) {
+    const feriadosMes = feriados.filter(f => parseInt(f.data.split('-')[1])-1 === mes);
+    const card = document.createElement('div');
+    card.className = 'mes-card';
+    const headerCls = feriadosMes.length > 0 ? 'tem' : 'sem';
+    card.innerHTML = `<div class="mc-header ${headerCls}">${mesesNomes[mes]}${feriadosMes.length > 0 ? ` (${feriadosMes.length})` : ''}</div>`;
+    const items = document.createElement('div');
+    items.className = 'mc-items';
+    if (feriadosMes.length === 0) {
+      items.innerHTML = '<div class="mc-vazio">Sem feriados</div>';
+    } else {
+      feriadosMes.forEach(f => {
+        const isPassado = f.data < hojeStr;
+        const isHoje = f.data === hojeStr;
+        const isProx = f.data === (proximos[0]?.data);
+        const dia = f.data.split('-')[2];
+        const semana = getDiaSemana(f.data);
+        const cls = isHoje ? 'mc-item hoje' : isProx ? 'mc-item proximo' : isPassado ? 'mc-item passado' : 'mc-item';
+        const diaCls = isHoje||isProx ? 'mi-dia proximo' : isPassado ? 'mi-dia passado' : 'mi-dia';
+        const item = document.createElement('div');
+        item.className = cls;
+        item.innerHTML = `
+          <div class="${diaCls}">${dia}</div>
+          <div class="mi-info">
+            <div class="mi-nome" title="${f.nome}">${f.nome}</div>
+            <div class="mi-semana">${semana}</div>
+          </div>
+          <span class="mi-tag ${f.tipo}">${nomes[f.tipo].slice(0,3)}</span>`;
+        items.appendChild(item);
+      });
+    }
+    card.appendChild(items);
+    grid.appendChild(card);
+  }
+
+  // Lista completa
+  const tbody = document.getElementById('lista-tbody');
+  tbody.innerHTML = '';
+  const todosFeriados = getFeriados(anoAtual);
+  todosFeriados.filter(f => filtrosAtivos[f.tipo]).forEach(f => {
+    const isPassado = f.data < hojeStr;
+    const isProx = proximos[0] && f.data === proximos[0].data;
+    const diaSem = getDiaSemana(f.data);
+    const isFS = diaSem === 'Sábado' || diaSem === 'Domingo';
+    const tr = document.createElement('tr');
+    if (isPassado) tr.className = 'passado-row';
+    if (isProx) tr.className = 'proximo-row';
+    tr.innerHTML = `
+      <td>${fmtDataBR(f.data)}</td>
+      <td class="${isFS?'dia-semana-fim':''}">${diaSem}</td>
+      <td style="color:#ccc">${f.nome}</td>
+      <td><span class="mi-tag ${f.tipo}" style="display:inline-block">${nomes[f.tipo]}</span></td>
+      <td style="color:#444;font-size:0.75rem">${f.base}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
